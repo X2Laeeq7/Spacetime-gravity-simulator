@@ -73,7 +73,7 @@ int main(int argc,char* argv[]){
 
     if (showSolarSystem){
         // --- Solar System ---
-        CelestialBody Sun = CelestialBody({0.0f,0.0f,0.0f},20.0f,4.0f,{250, 222, 133, 255},BodyType::STAR);
+        CelestialBody Sun = CelestialBody({0.0f,0.0f,0.0f},20.0f,3.0f,{250, 222, 133, 255},BodyType::STAR);
         Sun.setGravityRadius(1.2f);
 
         CelestialBody Mercury = CelestialBody({4.0f,0.0f,0.0f},0.5f,0.3f,{183, 184, 185,255},BodyType::PLANET);
