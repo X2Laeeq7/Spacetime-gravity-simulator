@@ -5,6 +5,8 @@
 #include <vector>
 #include <cmath>
 #include <cstring>
+#include <cstdlib>
+#include <ctime>
 
 // ============================================
 // GRAVITY SHEET 
@@ -36,6 +38,7 @@ int main(int argc,char* argv[]){
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
 
     InitWindow(screenWidth, screenHeight, "Gravity Sheet");
+    
 
     // --- Camera Setup ---
     Camera3D camera = {0};
@@ -107,6 +110,45 @@ int main(int argc,char* argv[]){
         camera.position = (Vector3){30.0f, 20.0f, 30.0f};
     }
     
+    // --- Background Stars --
+    std::vector<CelestialBody> stars;
+    const int starCount = 1500;
+    srand((unsigned)time(NULL));
+
+    for (int i=0;i<starCount;i++){
+        float radius = 80 + rand()%120;
+        float theta = (rand()%360) * DEG2RAD;
+        float phi = (rand()%180) * DEG2RAD;
+        Vector3 pos = {radius * sinf(phi) * cosf(theta), radius * cosf(phi), radius * sinf(phi) * sinf(theta)};
+        int colorType = rand() % 100;
+        Color starColor;
+        if (colorType < 15) {      
+            int b = 180 + (rand() % 75);
+            starColor = {150, 200, (unsigned char)b, 255};
+        } else if (colorType < 30) {
+            starColor = {255, 230, 180, 255};
+        } else if (colorType < 45) {
+            int r = 200 + (rand() % 55);
+            starColor = {(unsigned char)r, 160, 100, 255};
+        } else if (colorType < 60) { // 
+            starColor = {255, 180, 180, 255};
+        } else if (colorType < 75) { 
+            int b = 200 + (rand() % 55);
+            starColor = {(unsigned char)b, (unsigned char)b, (unsigned char)b, 255};
+        } else {                   
+            int b = 200 + (rand() % 55);
+            starColor = {180, 210, (unsigned char)b, 255};
+        }
+        float starRadius = 0.05f + (rand()%20)/500.0f;
+        float brightness = 0.5f + (rand() % 100) / 150.0f;
+        starColor.r = (unsigned char)(starColor.r * brightness);
+        starColor.g = (unsigned char)(starColor.g * brightness);
+        starColor.b = (unsigned char)(starColor.b * brightness);
+        
+        CelestialBody star(pos,0.0f,starRadius,starColor,BodyType::STAR);
+        stars.push_back(star);
+        
+    }
 
     SetTargetFPS(60);
 
@@ -171,13 +213,18 @@ int main(int argc,char* argv[]){
             }
         }
 
-    
-
     // --- DRAW ---
     BeginDrawing();
         ClearBackground(BLACK);
 
         BeginMode3D(camera);
+            // Draw stars
+            for (const auto& star : stars){
+                Vector3 pos = star.getPosition();
+                DrawPoint3D(pos,star.getColor());
+            }
+
+
             // Draw the grid as lines
             for (int i = 0; i < gridSize - 1; i++){
                 for (int j = 0; j < gridSize - 1; j++){
