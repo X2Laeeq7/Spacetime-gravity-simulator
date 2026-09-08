@@ -1,15 +1,35 @@
 #include "raylib.h"
 #include "raymath.h"
+#include "CelestialBody.cpp"
 #include <iostream>
 #include <vector>
 #include <cmath>
+#include <cstring>
 
 // ============================================
 // GRAVITY SHEET 
 // 3D grid with gravitational deformation
 // ============================================
 
-int main(){
+int main(int argc,char* argv[]){
+    bool showBlackHole = false;
+    bool showSolarSystem = false;
+
+    if (argc > 1){
+        if (strcmp(argv[1], "blackhole") == 0) {
+            showBlackHole = true;
+            std::cout << "Running BLACK HOLE simulation" << std::endl;
+        } else if (strcmp(argv[1], "solar") == 0) {
+            showSolarSystem = true;
+            std::cout << "Running SOLAR SYSTEM simulation" << std::endl;
+        } else { // default
+            showSolarSystem = true;
+            std::cout << "Running SOLAR SYSTEM simulation (default)" << std::endl;
+        }
+    } else {
+        showSolarSystem = true;
+        std::cout << "Running SOLAR SYSTEM simulation (default)" << std::endl;
+    }
     // --- Window Setup ---
     const int screenWidth = 1024;
     const int screenHeight = 768;
@@ -19,7 +39,6 @@ int main(){
 
     // --- Camera Setup ---
     Camera3D camera = {0};
-    camera.position = (Vector3){35.0f, 25.0f, 35.0f};
     camera.target = (Vector3){0.0f,0.0f,0.0f};
     camera.up = (Vector3){0.0f,1.0f,0.0f};
     camera.fovy = 45.0f;
@@ -30,7 +49,7 @@ int main(){
     const float spacing = 1.0f;
     
 
-    // Create a 2D vector to store grid points
+    // Create grid
     std::vector<std::vector<Vector3>> grid;
     grid.resize(gridSize);
     for (int i=0;i<gridSize;i++){
@@ -46,10 +65,48 @@ int main(){
         }
     }
 
-    // --- Celestial Bodies ---
-    Vector3 SUN = {0.0f,0.0f,0.0f};
-    float sunMass = 15.0f;
-    float sunRadius = 3.0f;
+    // --- Create Celestial Bodies ---
+    std::vector<CelestialBody> bodies;
+
+    if (showSolarSystem){
+        // --- Solar System ---
+        CelestialBody Sun = CelestialBody({0.0f,0.0f,0.0f},15.0f,3.0f,{250, 222, 133, 255},BodyType::STAR);
+
+        CelestialBody Mercury = CelestialBody({4.0f,0.0f,0.0f},0.5f,0.3f,{183, 184, 185,255},BodyType::PLANET);
+        Mercury.startOrbiting(4.0f,0.04f,{0.0f, 0.0f, 0.0f});
+
+        CelestialBody Venus = CelestialBody({7.0f,0.0f,0.0f},0.9,0.5,{245, 230, 195,255},BodyType::PLANET);
+        Venus.startOrbiting(7.0f,0.025f,{0.0f, 0.0f, 0.0f});
+
+        CelestialBody Earth = CelestialBody({10.0f,0.0f,0.0f},1.0f,0.6f,{77, 143, 234, 255},BodyType::PLANET);
+        Earth.startOrbiting(10.0f,0.02f,{0.0f, 0.0f, 0.0f});
+
+        CelestialBody Mars = CelestialBody({15.0f,0.0f,0.0f},0.8,0.5,{153, 61, 0,255},BodyType::PLANET);
+        Mars.startOrbiting(15.0f,0.015f,{0.0f, 0.0f, 0.0f});
+
+        CelestialBody Jupiter = CelestialBody({52.0f,0.0f,0.0f},5.0f,1.5f,{209, 167, 127,255},BodyType::PLANET);
+        Jupiter.startOrbiting(52.0f,0.008f,{0.0f, 0.0f, 0.0f});
+
+        CelestialBody Saturn = CelestialBody({95.0f,0.0f,0.0f},4.0,1.2,{250, 229, 191,255},BodyType::PLANET);
+        Saturn.startOrbiting(95.0f,0.005f,{0.0f, 0.0f, 0.0f});
+
+        bodies.push_back(Sun);
+        bodies.push_back(Earth);
+        bodies.push_back(Mercury);
+        bodies.push_back(Venus);
+        bodies.push_back(Mars);
+        bodies.push_back(Jupiter);
+        bodies.push_back(Saturn);
+
+        camera.position = (Vector3){35.0f, 25.0f, 35.0f};
+    }else if (showBlackHole){
+        // --- BLACK HOLE ---
+        CelestialBody BLACKHOLE = CelestialBody({0.0f,0.0f,0.0f},200.0f,0.8f, {0, 0, 0, 255}, BodyType::BLACK_HOLE);
+        bodies.push_back(BLACKHOLE);
+
+        camera.position = (Vector3){30.0f, 20.0f, 30.0f};
+    }
+    
 
     SetTargetFPS(60);
 
@@ -94,23 +151,26 @@ int main(){
             if (length > 100.0f) length = 100.0f;
             camera.position = Vector3Add(camera.target, Vector3Scale(Vector3Normalize(direction), length));
         }
+        
+        // --- Update Orbits ---
+        for (auto& body : bodies){body.updateOrbitPosition();}
 
         // Update grid deformation (real gravity)
-        float stretch = 0.2f;  
-        float softening = 0.5f;
         for (int i = 0; i < gridSize; i++) {
             for (int j = 0; j < gridSize; j++) {
                 float x = grid[i][j].x;
                 float z = grid[i][j].z;
-
-                float dx = x - SUN.x;
-                float dz = z - SUN.z;
-                float dist = sqrtf(dx*dx + dz*dz);
-                float height = -sunMass / (dist * stretch + softening);
-                
-                grid[i][j].y = height;
+                float totalHeight = 0.0f;
+                for (const auto& body : bodies){
+                    float dx = x - body.getPosition().x;
+                    float dz = z - body.getPosition().z;
+                    float dist = sqrtf(dx*dx + dz*dz);
+                    totalHeight += body.calculateDeformation(dist);
+                }
+                grid[i][j].y = totalHeight;
             }
         }
+
     
 
     // --- DRAW ---
@@ -139,18 +199,24 @@ int main(){
                 }
             }
 
-            // Draw the planet 
-            DrawSphere((Vector3){SUN.x,SUN.y,SUN.z},sunRadius,{250, 222, 133, 255});
-            DrawSphere((Vector3){SUN.x, SUN.y, SUN.z}, sunRadius * 1.2f, (Color){250, 222, 133, 40});
-    
+            // Draw the bodies
+            for (const auto& body : bodies){
+                body.draw();
+            }
             
         EndMode3D();
 
             // --- UI ---
             DrawFPS(10,10);
-            DrawText("GRAVITY SHEET",10,30,20,DARKGRAY);
+            if (showBlackHole){
+                DrawText("BLACK HOLE SIMULATION",10,30,20,DARKGRAY);
+            }else{
+                DrawText("SOLAR SYSTEM SIMULATION",10,30,20,DARKGRAY);
+                DrawText(("Bodies: " + std::to_string(bodies.size())).c_str(), 10, 105, 15, DARKGRAY);
+            }
             DrawText("Drag mouse to orbit | Scroll to zoom",10,55,15,DARKGRAY);
             DrawText(("Grid: "+std::to_string(gridSize)+"x"+std::to_string(gridSize)).c_str(),10,80,15,DARKGRAY);
+
         EndDrawing();
     }
 
