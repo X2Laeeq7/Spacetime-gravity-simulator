@@ -10,7 +10,8 @@ enum class BodyType {
     STAR,
     PLANET,
     BLACK_HOLE,
-    MOON
+    MOON,
+    ASTEROID
 };
 
 class CelestialBody{
@@ -110,7 +111,6 @@ class CelestialBody{
             }
         }
 
-
         // --- Drawing --
 
         void DrawDiskRing(Vector3 center, float innerRadius, float outerRadius,
@@ -163,7 +163,7 @@ class CelestialBody{
 
             // Glow for stars
             if (type == BodyType::STAR){
-                DrawSphere(pos,radius * 1.2f,(Color){color.r,color.g,color.b,40});
+                DrawSphere(pos,radius * 1.1f,(Color){color.r,color.g,color.b,40});
             }
         }
 

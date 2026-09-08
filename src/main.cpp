@@ -46,12 +46,12 @@ int main(int argc,char* argv[]){
     camera.up = (Vector3){0.0f,1.0f,0.0f};
     camera.fovy = 45.0f;
     camera.projection = CAMERA_CUSTOM;
+    camera.position = (Vector3){35.0f, 25.0f, 35.0f};
 
     // --- Grid Settings ---
     const int gridSize = 100;
     const float spacing = 1.0f;
     
-
     // Create grid
     std::vector<std::vector<Vector3>> grid;
     grid.resize(gridSize);
@@ -70,7 +70,7 @@ int main(int argc,char* argv[]){
 
     // --- Create Celestial Bodies ---
     std::vector<CelestialBody> bodies;
-
+    std::vector<CelestialBody> asteroids;
     if (showSolarSystem){
         // --- Solar System ---
         CelestialBody Sun = CelestialBody({0.0f,0.0f,0.0f},20.0f,3.0f,{250, 222, 133, 255},BodyType::STAR);
@@ -102,13 +102,26 @@ int main(int argc,char* argv[]){
         bodies.push_back(Jupiter);
         bodies.push_back(Saturn);
 
-        camera.position = (Vector3){35.0f, 25.0f, 35.0f};
+
+        // --- Asteroid Belt ---
+        const int asteroidCount = 500;
+        for (int i = 0; i < asteroidCount; i++) {
+            float radius = 20.0f + (rand() % 35);;
+            float angle = (rand() % 360) * DEG2RAD;
+            float heightOffset = (rand() % 20 - 10) / 20.0f;
+            Vector3 pos = {radius * cosf(angle),heightOffset * 2.0f,radius * sinf(angle)};
+            float size = 0.05f + (rand() % 10) / 200.0f;
+            float brightness = 0.3f + (rand() % 100) / 140.0f;
+            unsigned char b = (unsigned char)(brightness * 255);
+            
+            CelestialBody asteroid(pos,0.001f, size,{b, b-20, b-40, 255},BodyType::ASTEROID);
+            asteroids.push_back(asteroid);
+        }
     }else if (showBlackHole){
         // --- BLACK HOLE ---
         CelestialBody BLACKHOLE = CelestialBody({0.0f,0.0f,0.0f},5000.0f,5.0f, {0, 0, 0, 255}, BodyType::BLACK_HOLE);
         bodies.push_back(BLACKHOLE);
 
-        camera.position = (Vector3){30.0f, 20.0f, 30.0f};
     }
     
     // --- Background Stars --
@@ -250,6 +263,10 @@ int main(int argc,char* argv[]){
             // Draw the bodies
             for (const auto& body : bodies){
                 body.draw();
+            }
+            // --- DRAW ASTEROID BELT (3D) ---
+            for (const auto& asteroid : asteroids) {
+                asteroid.draw();
             }
             
         EndMode3D();
