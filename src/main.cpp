@@ -45,7 +45,7 @@ int main(int argc,char* argv[]){
     camera.target = (Vector3){0.0f,0.0f,0.0f};
     camera.up = (Vector3){0.0f,1.0f,0.0f};
     camera.fovy = 45.0f;
-    camera.projection = CAMERA_PERSPECTIVE;
+    camera.projection = CAMERA_CUSTOM;
 
     // --- Grid Settings ---
     const int gridSize = 100;
@@ -73,7 +73,8 @@ int main(int argc,char* argv[]){
 
     if (showSolarSystem){
         // --- Solar System ---
-        CelestialBody Sun = CelestialBody({0.0f,0.0f,0.0f},15.0f,3.0f,{250, 222, 133, 255},BodyType::STAR);
+        CelestialBody Sun = CelestialBody({0.0f,0.0f,0.0f},20.0f,4.0f,{250, 222, 133, 255},BodyType::STAR);
+        Sun.setGravityRadius(1.2f);
 
         CelestialBody Mercury = CelestialBody({4.0f,0.0f,0.0f},0.5f,0.3f,{183, 184, 185,255},BodyType::PLANET);
         Mercury.startOrbiting(4.0f,0.04f,{0.0f, 0.0f, 0.0f});
@@ -104,7 +105,7 @@ int main(int argc,char* argv[]){
         camera.position = (Vector3){35.0f, 25.0f, 35.0f};
     }else if (showBlackHole){
         // --- BLACK HOLE ---
-        CelestialBody BLACKHOLE = CelestialBody({0.0f,0.0f,0.0f},200.0f,0.8f, {0, 0, 0, 255}, BodyType::BLACK_HOLE);
+        CelestialBody BLACKHOLE = CelestialBody({0.0f,0.0f,0.0f},5000.0f,5.0f, {0, 0, 0, 255}, BodyType::BLACK_HOLE);
         bodies.push_back(BLACKHOLE);
 
         camera.position = (Vector3){30.0f, 20.0f, 30.0f};

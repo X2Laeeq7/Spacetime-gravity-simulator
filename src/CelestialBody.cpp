@@ -4,6 +4,7 @@
 
 #include "raylib.h"
 #include <cmath>
+#include "rlgl.h"
 
 enum class BodyType {
     STAR,
@@ -22,6 +23,7 @@ class CelestialBody{
         BodyType type;
         float softening;
         float stretch;
+        float gravityRadius;
 
         // --- Orbital properties
         float orbitalRadius;
@@ -36,6 +38,7 @@ class CelestialBody{
             position = pos;
             mass = m;
             radius = r;
+            gravityRadius = r;
             color = c;
             type = t;
             stretch = 1.0f;
@@ -60,6 +63,7 @@ class CelestialBody{
         Vector3 getPosition() const {return position;}
         float getMass() const {return mass;}
         float getRadius() const {return radius;}
+        float getGravityRadius() const {return gravityRadius;}
         Color getColor() const {return color;}
         BodyType getType() const {return type;}
 
@@ -67,6 +71,7 @@ class CelestialBody{
         void setPosition(Vector3 pos){position=pos;}
         void setMass(float m){mass = m;}
         void setRadius(float r){radius = r;}
+        void setGravityRadius(float r){gravityRadius = r;}
         void setColor(Color c){color =c;}
         void setParentPosition(Vector3 newParent){parentPos = newParent;}
 
@@ -75,13 +80,13 @@ class CelestialBody{
             if (type == BodyType::BLACK_HOLE){
                 float G = 1.0f;
                 float r_s = 2.0f * G * mass;
-                if (dist > r_s){
-                    return -2.0f * sqrtf(2.0f * G * mass * (dist - r_s));
-                }else{
-                    return -20.0f;
-                }
-            }else{
-                return -mass / (dist * stretch + softening);
+                float height = -mass / (dist * dist + 1.0f);  
+                return height;
+            } else {
+                float depthScale = mass * 1.2f;
+                float falloffRadius = gravityRadius * 4.0f + 1.0f;
+                float height = -depthScale / (1.0f + (dist * dist) / (falloffRadius * falloffRadius));
+                return height;
             }
         }
 
@@ -107,22 +112,79 @@ class CelestialBody{
 
 
         // --- Drawing --
+
+        void DrawDiskRing(Vector3 center, float innerRadius, float outerRadius,
+                   float tiltAngleDeg, Vector3 tiltAxis, float spinDeg,
+                   Color innerColor, Color outerColor, int segments) const
+        {
+            rlPushMatrix();
+            rlTranslatef(center.x, center.y, center.z);
+            rlRotatef(tiltAngleDeg, tiltAxis.x, tiltAxis.y, tiltAxis.z);
+            rlRotatef(spinDeg, 0.0f, 1.0f, 0.0f); 
+
+            rlBegin(RL_TRIANGLES);
+            for (int i = 0; i < segments; i++)
+            {
+                float t0 = (float)i / segments * 2.0f * PI;
+                float t1 = (float)(i + 1) / segments * 2.0f * PI;
+
+                float xo0 = cosf(t0) * outerRadius, zo0 = sinf(t0) * outerRadius;
+                float xo1 = cosf(t1) * outerRadius, zo1 = sinf(t1) * outerRadius;
+                float xi0 = cosf(t0) * innerRadius, zi0 = sinf(t0) * innerRadius;
+                float xi1 = cosf(t1) * innerRadius, zi1 = sinf(t1) * innerRadius;
+
+                rlColor4ub(innerColor.r, innerColor.g, innerColor.b, innerColor.a);
+                rlVertex3f(xi0, 0, zi0);
+                rlColor4ub(outerColor.r, outerColor.g, outerColor.b, outerColor.a);
+                rlVertex3f(xo0, 0, zo0);
+                rlVertex3f(xo1, 0, zo1);
+
+                rlColor4ub(innerColor.r, innerColor.g, innerColor.b, innerColor.a);
+                rlVertex3f(xi0, 0, zi0);
+                rlVertex3f(xi1, 0, zi1);
+                rlColor4ub(outerColor.r, outerColor.g, outerColor.b, outerColor.a);
+                rlVertex3f(xo1, 0, zo1);
+            }
+            rlEnd();
+
+            rlPopMatrix();
+        }
+
         void draw() const{
             Vector3 pos = {position.x,position.y,position.z};
-            // Draw body
+
+            if (type == BodyType::BLACK_HOLE){
+                drawBlackHole(pos);
+                return; 
+            }
+
+            // Draw body (stars, planets, moons)
             DrawSphere(pos,radius,color);
 
             // Glow for stars
             if (type == BodyType::STAR){
                 DrawSphere(pos,radius * 1.2f,(Color){color.r,color.g,color.b,40});
             }
-            // Glow for black holes
-            else if (type== BodyType::BLACK_HOLE){
-                DrawSphere(pos,radius * 2.0f,(Color){255,100,50,20});
-                // Event horizon
-                float G = 1.0f;
-                float r_s = 2.0f * G * mass;
-                //DrawRing3D(pos,r_s - 0.3f,r_s+0.3f,(Vector3){0.0f,1.0f,0.0f},0.0f,360.0f,(Color){255,0,0,80});
-            }
+        }
+
+        void drawBlackHole(Vector3 pos) const {
+            Vector3 tiltAxis = {1.0f, 0.0f, 0.0f};
+            float tiltAngle = 0.0f; // fully horizontal, no tilt
+            float spinDeg = fmodf((float)GetTime() * 18.0f, 360.0f); // slow rotation for a "living" disk
+            DrawSphere(pos, radius, BLACK);
+            rlDisableBackfaceCulling();
+            rlDisableDepthMask();
+            DrawDiskRing(pos, radius * 1.5f, radius * 1.9f, tiltAngle, tiltAxis, spinDeg,
+                         (Color){255, 255, 255, 230}, (Color){255, 235, 190, 190}, 64);
+            DrawDiskRing(pos, radius * 1.9f, radius * 2.4f, tiltAngle, tiltAxis, spinDeg,
+                         (Color){255, 235, 190, 190}, (Color){255, 200, 120, 150}, 64);
+            DrawDiskRing(pos, radius * 2.4f, radius * 3.0f, tiltAngle, tiltAxis, spinDeg,
+                         (Color){255, 200, 120, 150}, (Color){255, 150, 70, 110}, 64);
+            DrawDiskRing(pos, radius * 3.0f, radius * 3.8f, tiltAngle, tiltAxis, spinDeg,
+                         (Color){255, 150, 70, 110}, (Color){220, 90, 40, 60}, 64);
+            DrawDiskRing(pos, radius * 3.8f, radius * 4.8f, tiltAngle, tiltAxis, spinDeg,
+                         (Color){220, 90, 40, 60}, (Color){150, 50, 30, 0}, 64);
+            rlEnableDepthMask();
+            rlEnableBackfaceCulling();
         }
 };
