@@ -13,19 +13,20 @@ int main(){
     // --- Window Setup ---
     const int screenWidth = 1024;
     const int screenHeight = 768;
+    SetConfigFlags(FLAG_WINDOW_RESIZABLE);
 
     InitWindow(screenWidth, screenHeight, "Gravity Sheet");
 
     // --- Camera Setup ---
     Camera3D camera = {0};
-    camera.position = (Vector3){15.0f, 12.0f, 15.0f};
+    camera.position = (Vector3){35.0f, 25.0f, 35.0f};
     camera.target = (Vector3){0.0f,0.0f,0.0f};
     camera.up = (Vector3){0.0f,1.0f,0.0f};
     camera.fovy = 45.0f;
     camera.projection = CAMERA_PERSPECTIVE;
 
     // --- Grid Settings ---
-    const int gridSize = 30;
+    const int gridSize = 100;
     const float spacing = 1.0f;
     
 
@@ -45,17 +46,17 @@ int main(){
         }
     }
 
-    // --- Planet Settings ---
-    Vector3 planetPos = {0.0f,0.0f,0.0f};
-    float planetMass = 8.0f;
-    float planetRadius = 2.5f;
+    // --- Celestial Bodies ---
+    Vector3 SUN = {0.0f,0.0f,0.0f};
+    float sunMass = 15.0f;
+    float sunRadius = 3.0f;
 
     SetTargetFPS(60);
 
     // --- Main Game Loop ---
     while (!WindowShouldClose()){
         // Camera Control
-        UpdateCamera(&camera, CAMERA_ORBITAL);
+        UpdateCamera(&camera, CAMERA_PERSPECTIVE);
         if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
             Vector2 delta = GetMouseDelta();
             
@@ -80,6 +81,7 @@ int main(){
             rotated = Vector3Normalize(rotated);
             
             camera.position = Vector3Add(camera.target, Vector3Scale(rotated, length));
+            camera.fovy = 45.0f;
         }
 
         // Zoom with scroll wheel
@@ -89,21 +91,23 @@ int main(){
             float length = Vector3Length(direction);
             length -= wheel * 1.5f;
             if (length < 2.0f) length = 2.0f;
-            if (length > 50.0f) length = 50.0f;
+            if (length > 100.0f) length = 100.0f;
             camera.position = Vector3Add(camera.target, Vector3Scale(Vector3Normalize(direction), length));
         }
 
         // Update grid deformation (real gravity)
+        float stretch = 0.2f;  
+        float softening = 0.5f;
         for (int i = 0; i < gridSize; i++) {
             for (int j = 0; j < gridSize; j++) {
                 float x = grid[i][j].x;
                 float z = grid[i][j].z;
 
-                // Gravitational potential z = -G * M / r
-                float dx = x - planetPos.x;
-                float dz = z - planetPos.z;
-                float dist  = sqrtf(dx*dx + dz*dz + 0.5f); // +0.5 to avoid division by zero
-                float height = -planetMass / dist; // Gravity deformation
+                float dx = x - SUN.x;
+                float dz = z - SUN.z;
+                float dist = sqrtf(dx*dx + dz*dz);
+                float height = -sunMass / (dist * stretch + softening);
+                
                 grid[i][j].y = height;
             }
         }
@@ -118,30 +122,27 @@ int main(){
             for (int i = 0; i < gridSize - 1; i++){
                 for (int j = 0; j < gridSize - 1; j++){
                     // Draw horizontal line
-                    DrawLine3D(grid[i][j],grid[i+1][j],DARKGRAY);
+                    DrawLine3D(grid[i][j],grid[i+1][j],{90, 110, 150, 70});
                     // Draw vertical line
-                    DrawLine3D(grid[i][j],grid[i][j+1],DARKGRAY);
+                    DrawLine3D(grid[i][j],grid[i][j+1],{90, 110, 150,70});
+
+                    DrawTriangle3D(grid[i][j], grid[i+1][j], grid[i][j+1], {20, 20, 20, 200});
+                    DrawTriangle3D(grid[i+1][j], grid[i+1][j+1], grid[i][j+1],{20, 20, 20, 200});
 
                 }
             }
-
+            
             // Draw grid points as dots
             for (int i = 0; i < gridSize - 1; i++){
                 for (int j = 0; j < gridSize - 1; j++){
-                    DrawPoint3D(grid[i][j],DARKGRAY);
+                    DrawPoint3D(grid[i][j],{90, 110, 150, 100});
                 }
             }
 
-            // Draw the planet as a sphere
-            // Find the height of the grid at planet position
-            float planetHeight = 0.0f;
-            int pi = (int)(planetPos.x / spacing) + gridSize/2;
-            int pj = (int)(planetPos.z / spacing) + gridSize/2;
-            if (pi >= 0 && pi < gridSize && pj >=0 && pj<gridSize){
-                planetHeight = grid[pi][pj].y;
-            }
-            float planetY = 2.0f;
-            DrawSphere((Vector3){planetPos.x,planetY,planetPos.z},planetRadius,YELLOW);
+            // Draw the planet 
+            DrawSphere((Vector3){SUN.x,SUN.y,SUN.z},sunRadius,{250, 222, 133, 255});
+            DrawSphere((Vector3){SUN.x, SUN.y, SUN.z}, sunRadius * 1.2f, (Color){250, 222, 133, 40});
+    
             
         EndMode3D();
 
