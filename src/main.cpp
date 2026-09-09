@@ -92,8 +92,15 @@ int main(int argc,char* argv[]){
         Jupiter.startOrbiting(52.0f,-0.008f,{0.0f, 0.0f, 0.0f});
 
         CelestialBody Saturn = CelestialBody({85.0f,0.0f,0.0f},4.0,1.2,{250, 229, 191,255},BodyType::PLANET);
-        Saturn.startOrbiting(85.0f,-0.005f,{0.0f, 0.0f, 0.0f});
+        Saturn.startOrbiting(95.0f,-0.005f,{0.0f, 0.0f, 0.0f});
         Saturn.addRings({210, 190, 150, 255});
+
+        CelestialBody Uranus = CelestialBody({192.0f,0.0f,0.0f},2.5f,1.0f,{175, 225, 235,255},BodyType::PLANET);
+        Uranus.startOrbiting(192.0f,-0.0035f,{0.0f, 0.0f, 0.0f});
+        Uranus.addRings({100, 115, 120, 255});
+
+        CelestialBody Neptune = CelestialBody({301.0f,0.0f,0.0f},2.4f,1.0f,{70, 100, 220,255},BodyType::PLANET);
+        Neptune.startOrbiting(301.0f,-0.0025f,{0.0f, 0.0f, 0.0f});
 
         bodies.push_back(Sun);
         bodies.push_back(Earth);
@@ -102,6 +109,8 @@ int main(int argc,char* argv[]){
         bodies.push_back(Mars);
         bodies.push_back(Jupiter);
         bodies.push_back(Saturn);
+        bodies.push_back(Uranus);
+        bodies.push_back(Neptune);
 
         // --- Asteroid Belt ---
         const int asteroidCount = 500;
@@ -209,7 +218,7 @@ int main(int argc,char* argv[]){
             float length = Vector3Length(direction);
             length -= wheel * 1.5f;
             if (length < 2.0f) length = 2.0f;
-            if (length > 100.0f) length = 100.0f;
+            if (length > 150.0f) length = 150.0f;
             camera.position = Vector3Add(camera.target, Vector3Scale(Vector3Normalize(direction), length));
         }
         
