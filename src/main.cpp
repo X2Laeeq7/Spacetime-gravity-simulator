@@ -91,8 +91,9 @@ int main(int argc,char* argv[]){
         CelestialBody Jupiter = CelestialBody({52.0f,0.0f,0.0f},5.0f,1.5f,{209, 167, 127,255},BodyType::PLANET);
         Jupiter.startOrbiting(52.0f,0.008f,{0.0f, 0.0f, 0.0f});
 
-        CelestialBody Saturn = CelestialBody({95.0f,0.0f,0.0f},4.0,1.2,{250, 229, 191,255},BodyType::PLANET);
-        Saturn.startOrbiting(95.0f,0.005f,{0.0f, 0.0f, 0.0f});
+        CelestialBody Saturn = CelestialBody({85.0f,0.0f,0.0f},4.0,1.2,{250, 229, 191,255},BodyType::PLANET);
+        Saturn.startOrbiting(85.0f,0.005f,{0.0f, 0.0f, 0.0f});
+        Saturn.addRings({210, 190, 150, 255});
 
         bodies.push_back(Sun);
         bodies.push_back(Earth);

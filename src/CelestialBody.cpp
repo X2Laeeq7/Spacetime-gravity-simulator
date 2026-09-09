@@ -26,12 +26,19 @@ class CelestialBody{
         float stretch;
         float gravityRadius;
 
-        // --- Orbital properties
+        // --- Orbital Properties
         float orbitalRadius;
         float orbitalSpeed;
         float orbitalAngle;
         bool isOrbiting;
         Vector3 parentPos;
+
+        // --- Saturn Properties
+        bool hasRings;
+        Color ringColor;
+        float ringInnerScale;
+        float ringOuterScale;
+        float ringTilt;
 
     public:
         // Constructor ---
@@ -44,6 +51,12 @@ class CelestialBody{
             type = t;
             stretch = 1.0f;
             softening = 0.5f;
+
+            hasRings = false;
+            ringColor = {200, 200, 200, 255};
+            ringInnerScale = 1.5f;
+            ringOuterScale = 2.3f;
+            ringTilt = 20.0f;
 
             orbitalRadius = 0.0f;
             orbitalSpeed = 0.0f;
@@ -112,6 +125,13 @@ class CelestialBody{
         }
 
         // --- Drawing --
+        void addRings(Color c, float innerScale = 1.5f, float outerScale = 2.3f, float tilt = 20.0f){
+            hasRings = true;
+            ringColor = c;
+            ringInnerScale = innerScale;
+            ringOuterScale = outerScale;
+            ringTilt = tilt;
+        }
 
         void DrawDiskRing(Vector3 center, float innerRadius, float outerRadius,
                    float tiltAngleDeg, Vector3 tiltAxis, float spinDeg,
@@ -150,27 +170,10 @@ class CelestialBody{
             rlPopMatrix();
         }
 
-        void draw() const{
-            Vector3 pos = {position.x,position.y,position.z};
-
-            if (type == BodyType::BLACK_HOLE){
-                drawBlackHole(pos);
-                return; 
-            }
-
-            // Draw body (stars, planets, moons)
-            DrawSphere(pos,radius,color);
-
-            // Glow for stars
-            if (type == BodyType::STAR){
-                DrawSphere(pos,radius * 1.1f,(Color){color.r,color.g,color.b,40});
-            }
-        }
-
         void drawBlackHole(Vector3 pos) const {
             Vector3 tiltAxis = {1.0f, 0.0f, 0.0f};
-            float tiltAngle = 0.0f; // fully horizontal, no tilt
-            float spinDeg = fmodf((float)GetTime() * 18.0f, 360.0f); // slow rotation for a "living" disk
+            float tiltAngle = 0.0f; 
+            float spinDeg = fmodf((float)GetTime() * 18.0f, 360.0f); 
             DrawSphere(pos, radius, BLACK);
             rlDisableBackfaceCulling();
             rlDisableDepthMask();
@@ -186,5 +189,39 @@ class CelestialBody{
                          (Color){220, 90, 40, 60}, (Color){150, 50, 30, 0}, 64);
             rlEnableDepthMask();
             rlEnableBackfaceCulling();
+        } 
+
+        void draw() const{
+            Vector3 pos = {position.x,position.y,position.z};
+
+            if (type == BodyType::BLACK_HOLE){
+                drawBlackHole(pos);
+                return; 
+            }
+
+            // Draw body (stars, planets, moons)
+            DrawSphere(pos,radius,color);
+
+            // Glow for stars
+            if (type == BodyType::STAR){
+                DrawSphere(pos,radius * 1.1f,(Color){color.r,color.g,color.b,40});
+            }
+
+            if (hasRings){
+                rlDisableBackfaceCulling();
+                rlDisableDepthMask();
+                Color ringOuterColor = ringColor;
+                ringOuterColor.a = (unsigned char)(ringColor.a / 3);
+                DrawDiskRing(pos, radius * ringInnerScale, radius * ringOuterScale,
+                             ringTilt, (Vector3){1.0f, 0.0f, 0.0f}, 0.0f,
+                             ringColor, ringOuterColor, 64);
+                DrawDiskRing(pos, radius * ringOuterScale, radius * ringOuterScale*1.5,
+                             ringTilt, (Vector3){1.0f, 0.0f, 0.0f}, 0.0f,
+                             ringColor, ringOuterColor, 64);
+                rlEnableDepthMask();
+                rlEnableBackfaceCulling();
+            }
         }
+
+        
 };
