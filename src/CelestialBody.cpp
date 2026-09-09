@@ -207,6 +207,7 @@ class CelestialBody{
                 DrawSphere(pos,radius * 1.1f,(Color){color.r,color.g,color.b,40});
             }
 
+            // === Saturn rings ---
             if (hasRings){
                 rlDisableBackfaceCulling();
                 rlDisableDepthMask();
