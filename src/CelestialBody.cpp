@@ -11,7 +11,7 @@ enum class BodyType {
     PLANET,
     BLACK_HOLE,
     MOON,
-    ASTEROID
+    ASTEROID,MP
 };
 
 class CelestialBody{

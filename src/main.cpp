@@ -102,7 +102,6 @@ int main(int argc,char* argv[]){
         bodies.push_back(Jupiter);
         bodies.push_back(Saturn);
 
-
         // --- Asteroid Belt ---
         const int asteroidCount = 500;
         for (int i = 0; i < asteroidCount; i++) {
@@ -120,7 +119,12 @@ int main(int argc,char* argv[]){
     }else if (showBlackHole){
         // --- BLACK HOLE ---
         CelestialBody BLACKHOLE = CelestialBody({0.0f,0.0f,0.0f},5000.0f,5.0f, {0, 0, 0, 255}, BodyType::BLACK_HOLE);
+
+        CelestialBody MillersPlanet = CelestialBody({45.0f,0.0f,0.0f},1.3f,0.5f,{100,180,255,200},BodyType::PLANET);
+        MillersPlanet.startOrbiting(45.0f,0.15f,{0.0f,0.0f,0.0f});
+
         bodies.push_back(BLACKHOLE);
+        bodies.push_back(MillersPlanet);
 
     }
     
@@ -277,7 +281,6 @@ int main(int argc,char* argv[]){
                 DrawText("BLACK HOLE SIMULATION",10,30,20,DARKGRAY);
             }else{
                 DrawText("SOLAR SYSTEM SIMULATION",10,30,20,DARKGRAY);
-                DrawText(("Bodies: " + std::to_string(bodies.size())).c_str(), 10, 105, 15, DARKGRAY);
             }
             DrawText("Drag mouse to orbit | Scroll to zoom",10,55,15,DARKGRAY);
             DrawText(("Grid: "+std::to_string(gridSize)+"x"+std::to_string(gridSize)).c_str(),10,80,15,DARKGRAY);
