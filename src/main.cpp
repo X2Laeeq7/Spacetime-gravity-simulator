@@ -77,22 +77,22 @@ int main(int argc,char* argv[]){
         Sun.setGravityRadius(1.2f);
 
         CelestialBody Mercury = CelestialBody({4.0f,0.0f,0.0f},0.5f,0.3f,{183, 184, 185,255},BodyType::PLANET);
-        Mercury.startOrbiting(4.0f,0.04f,{0.0f, 0.0f, 0.0f});
+        Mercury.startOrbiting(4.0f,-0.04f,{0.0f, 0.0f, 0.0f});
 
         CelestialBody Venus = CelestialBody({7.0f,0.0f,0.0f},0.9,0.5,{245, 230, 195,255},BodyType::PLANET);
-        Venus.startOrbiting(7.0f,0.025f,{0.0f, 0.0f, 0.0f});
+        Venus.startOrbiting(7.0f,-0.025f,{0.0f, 0.0f, 0.0f});
 
         CelestialBody Earth = CelestialBody({10.0f,0.0f,0.0f},1.0f,0.6f,{77, 143, 234, 255},BodyType::PLANET);
-        Earth.startOrbiting(10.0f,0.02f,{0.0f, 0.0f, 0.0f});
+        Earth.startOrbiting(10.0f,-0.02f,{0.0f, 0.0f, 0.0f});
 
         CelestialBody Mars = CelestialBody({15.0f,0.0f,0.0f},0.8,0.5,{153, 61, 0,255},BodyType::PLANET);
-        Mars.startOrbiting(15.0f,0.015f,{0.0f, 0.0f, 0.0f});
+        Mars.startOrbiting(15.0f,-0.015f,{0.0f, 0.0f, 0.0f});
 
         CelestialBody Jupiter = CelestialBody({52.0f,0.0f,0.0f},5.0f,1.5f,{209, 167, 127,255},BodyType::PLANET);
-        Jupiter.startOrbiting(52.0f,0.008f,{0.0f, 0.0f, 0.0f});
+        Jupiter.startOrbiting(52.0f,-0.008f,{0.0f, 0.0f, 0.0f});
 
         CelestialBody Saturn = CelestialBody({85.0f,0.0f,0.0f},4.0,1.2,{250, 229, 191,255},BodyType::PLANET);
-        Saturn.startOrbiting(85.0f,0.005f,{0.0f, 0.0f, 0.0f});
+        Saturn.startOrbiting(85.0f,-0.005f,{0.0f, 0.0f, 0.0f});
         Saturn.addRings({210, 190, 150, 255});
 
         bodies.push_back(Sun);
@@ -122,7 +122,7 @@ int main(int argc,char* argv[]){
         CelestialBody BLACKHOLE = CelestialBody({0.0f,0.0f,0.0f},5000.0f,5.0f, {0, 0, 0, 255}, BodyType::BLACK_HOLE);
 
         CelestialBody MillersPlanet = CelestialBody({45.0f,0.0f,0.0f},1.3f,0.5f,{100,180,255,200},BodyType::PLANET);
-        MillersPlanet.startOrbiting(45.0f,0.15f,{0.0f,0.0f,0.0f});
+        MillersPlanet.startOrbiting(45.0f,-0.15f,{0.0f,0.0f,0.0f});
 
         bodies.push_back(BLACKHOLE);
         bodies.push_back(MillersPlanet);
