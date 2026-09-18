@@ -74,7 +74,7 @@ int main(int argc,char* argv[]){
     if (showSolarSystem){
         // --- Solar System ---
         CelestialBody Sun = CelestialBody({0.0f,0.0f,0.0f},20.0f,3.0f,{250, 222, 133, 255},BodyType::STAR);
-        Sun.setGravityRadius(1.2f);
+        Sun.setGravityRadius(5.0f);
 
         CelestialBody Mercury = CelestialBody({4.0f,0.0f,0.0f},0.5f,0.3f,{183, 184, 185,255},BodyType::PLANET);
         Mercury.startOrbiting(4.0f,-0.04f,{0.0f, 0.0f, 0.0f});
@@ -88,8 +88,8 @@ int main(int argc,char* argv[]){
         CelestialBody Mars = CelestialBody({15.0f,0.0f,0.0f},0.8,0.5,{153, 61, 0,255},BodyType::PLANET);
         Mars.startOrbiting(15.0f,-0.015f,{0.0f, 0.0f, 0.0f});
 
-        CelestialBody Jupiter = CelestialBody({52.0f,0.0f,0.0f},5.0f,1.5f,{209, 167, 127,255},BodyType::PLANET);
-        Jupiter.startOrbiting(52.0f,-0.008f,{0.0f, 0.0f, 0.0f});
+        CelestialBody Jupiter = CelestialBody({47.0f,0.0f,0.0f},5.0f,1.5f,{209, 167, 127,255},BodyType::PLANET);
+        Jupiter.startOrbiting(47.0f,-0.008f,{0.0f, 0.0f, 0.0f});
 
         CelestialBody Saturn = CelestialBody({85.0f,0.0f,0.0f},4.0,1.2,{250, 229, 191,255},BodyType::PLANET);
         Saturn.startOrbiting(95.0f,-0.005f,{0.0f, 0.0f, 0.0f});
@@ -115,7 +115,7 @@ int main(int argc,char* argv[]){
         // --- Asteroid Belt ---
         const int asteroidCount = 500;
         for (int i = 0; i < asteroidCount; i++) {
-            float radius = 20.0f + (rand() % 35);;
+            float radius = 22.0f + (rand() % 25);;
             float angle = (rand() % 360) * DEG2RAD;
             float heightOffset = (rand() % 20 - 10) / 20.0f;
             Vector3 pos = {radius * cosf(angle),heightOffset * 2.0f,radius * sinf(angle)};
@@ -128,7 +128,7 @@ int main(int argc,char* argv[]){
         }
     }else if (showBlackHole){
         // --- BLACK HOLE ---
-        CelestialBody BLACKHOLE = CelestialBody({0.0f,0.0f,0.0f},5000.0f,5.0f, {0, 0, 0, 255}, BodyType::BLACK_HOLE);
+        CelestialBody BLACKHOLE = CelestialBody({0.0f,0.0f,0.0f},5000.0f,6.0f, {0, 0, 0, 255}, BodyType::BLACK_HOLE);
 
         CelestialBody MillersPlanet = CelestialBody({45.0f,0.0f,0.0f},1.3f,0.5f,{100,180,255,200},BodyType::PLANET);
         MillersPlanet.startOrbiting(45.0f,-0.15f,{0.0f,0.0f,0.0f});
@@ -240,7 +240,6 @@ int main(int argc,char* argv[]){
                 grid[i][j].y = totalHeight;
             }
         }
-
     // --- DRAW ---
     BeginDrawing();
         ClearBackground(BLACK);
@@ -251,8 +250,6 @@ int main(int argc,char* argv[]){
                 Vector3 pos = star.getPosition();
                 DrawPoint3D(pos,star.getColor());
             }
-
-
             // Draw the grid as lines
             for (int i = 0; i < gridSize - 1; i++){
                 for (int j = 0; j < gridSize - 1; j++){
@@ -265,15 +262,13 @@ int main(int argc,char* argv[]){
                     DrawTriangle3D(grid[i+1][j], grid[i+1][j+1], grid[i][j+1],{20, 20, 20, 200});
 
                 }
-            }
-            
+            }            
             // Draw grid points as dots
             for (int i = 0; i < gridSize - 1; i++){
                 for (int j = 0; j < gridSize - 1; j++){
                     DrawPoint3D(grid[i][j],{90, 110, 150, 100});
                 }
             }
-
             // Draw the bodies
             for (const auto& body : bodies){
                 body.draw();
@@ -281,8 +276,7 @@ int main(int argc,char* argv[]){
             // --- DRAW ASTEROID BELT (3D) ---
             for (const auto& asteroid : asteroids) {
                 asteroid.draw();
-            }
-            
+            }            
         EndMode3D();
 
             // --- UI ---

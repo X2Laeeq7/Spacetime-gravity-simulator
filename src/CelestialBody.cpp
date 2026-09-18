@@ -42,13 +42,13 @@ class CelestialBody{
 
     public:
         // Constructor ---
-        CelestialBody(Vector3 pos,float m,float r,Color c,BodyType t){
-            position = pos;
-            mass = m;
-            radius = r;
-            gravityRadius = r;
-            color = c;
-            type = t;
+        CelestialBody(Vector3 position,float mass,float radius,Color color,BodyType type){
+            this->position = position;
+            this->mass = mass;
+            this->radius = radius;
+            gravityRadius = radius;
+            this->color = color;
+            this->type = type;
             stretch = 1.0f;
             softening = 0.5f;
 
@@ -82,11 +82,11 @@ class CelestialBody{
         BodyType getType() const {return type;}
 
         // --- Setters ---
-        void setPosition(Vector3 pos){position=pos;}
-        void setMass(float m){mass = m;}
-        void setRadius(float r){radius = r;}
-        void setGravityRadius(float r){gravityRadius = r;}
-        void setColor(Color c){color =c;}
+        void setPosition(Vector3 position){this->position=position;}
+        void setMass(float mass){this->mass = mass;}
+        void setRadius(float radius){this->radius = radius;}
+        void setGravityRadius(float radius){gravityRadius = radius;}
+        void setColor(Color color){this->color = color;}
         void setParentPosition(Vector3 newParent){parentPos = newParent;}
 
         // --- Physics ---
@@ -98,7 +98,7 @@ class CelestialBody{
                 return height;
             } else {
                 float depthScale = mass * 1.2f;
-                float falloffRadius = gravityRadius * 4.0f + 1.0f;
+                float falloffRadius = gravityRadius * 3.4f + 1.0f;
                 float height = -depthScale / (1.0f + (dist * dist) / (falloffRadius * falloffRadius));
                 return height;
             }
@@ -173,7 +173,7 @@ class CelestialBody{
         void drawBlackHole(Vector3 pos) const {
             Vector3 tiltAxis = {1.0f, 0.0f, 0.0f};
             float tiltAngle = 0.0f; 
-            float spinDeg = fmodf((float)GetTime() * 18.0f, 360.0f); 
+            float spinDeg = fmodf((float)GetTime() * 60.0f, 360.0f); 
             DrawSphere(pos, radius, BLACK);
             rlDisableBackfaceCulling();
             rlDisableDepthMask();
@@ -188,7 +188,7 @@ class CelestialBody{
             DrawDiskRing(pos, radius * 3.8f, radius * 4.8f, tiltAngle, tiltAxis, spinDeg,
                          (Color){220, 90, 40, 60}, (Color){150, 50, 30, 0}, 64);
             rlEnableDepthMask();
-            rlEnableBackfaceCulling();
+            //rlEnableBackfaceCulling();
         } 
 
         void draw() const{
