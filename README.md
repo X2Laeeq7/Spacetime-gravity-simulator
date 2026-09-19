@@ -2,6 +2,10 @@
 
 An interactive 3D gravity simulator built in **C++** with **raylib**, visualizing how massive objects can curve spacetime.
 
+<img src="screenshots/solar1.png" alt="Solar System">
+
+<img src="screenshots/blackhole.png" alt="Solar System">
+
 ## ✨ Features
 
 ### 🌍 Solar System Mode
