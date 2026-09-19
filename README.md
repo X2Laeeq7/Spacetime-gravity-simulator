@@ -8,17 +8,15 @@ An interactive 3D gravity simulator built in **C++** with **raylib**, visualizin
 
 * Sun and planets from Mercury to Saturn
 * Relative orbital speeds
-* Earth–Moon hierarchical orbit
 * Asteroid belt
 * 3D orbital camera
 
 ### 🕳️ Black Hole Mode
 
 * Supermassive black hole
-* Event horizon
 * Spinning accretion disk
-* Photon ring and additional disk layers
 * Schwarzschild-inspired spacetime deformation
+* Millers planet from Interstellar(2014) orbiting rapidly
 
 ### 🎨 Visuals
 
