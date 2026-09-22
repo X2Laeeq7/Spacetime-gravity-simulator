@@ -58,19 +58,19 @@ An interactive 3D gravity simulator built in **C++** with **raylib**, visualizin
 Run:
 
 ```bash
-.\compile.bat
+./compile.bat
 ```
 
 ### Run
 
 ```bash
-gravity_sheet.exe solar
+./gravity_sheet.exe solar
 ```
 
 or
 
 ```bash
-gravity_sheet.exe blackhole
+./gravity_sheet.exe blackhole
 ```
 
 Running the executable without an argument defaults to Solar System mode.
